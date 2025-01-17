@@ -182,12 +182,12 @@ def generate_hw02(question):
                 json_content = response_content.strip('```json\n').strip('```')
                 #print("response_content:", response_content)
                 #print("strip:", json_content)
-                try:
-                    parsed_result = json.loads(json_content)
-                except json.JSONDecodeError as e:
-                    print("解析 JSON 时出错:", e)
-                    return None
-                return parsed_result
+                #try:
+                #    parsed_result = json.loads(json_content)
+                #except json.JSONDecodeError as e:
+                #    print("解析 JSON 时出错:", e)
+                #    return None
+                return json_content
 
             else:
                 print("Error:", result.stderr)

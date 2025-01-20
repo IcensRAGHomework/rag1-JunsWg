@@ -293,36 +293,7 @@ def local_image_to_data_url(image_path):
     return f"data:{mime_type};base64,{base64_encoded_data}"
 
 def generate_hw04(question):
-    client =  AzureOpenAI(
-        api_key=gpt_config['api_key'],
-        api_version=gpt_config['api_version'],
-        base_url=f"{gpt_config['api_base']}/openai/deployments/{gpt_config['deployment_name']}")
-
-    # 加载图像
-    image_path = 'baseball.png'
-    data_url = local_image_to_data_url(image_path)
-    #print("Data URL:", data_url)
-    response = client.chat.completions.create(
-        model=gpt_config['deployment_name'],
-        messages=[
-            {"role": "system", "content": f"你是一个非常聪明的助手，可以理解和分析图片内容。以以下 JSON 格式返回：{json_str}，仅需回答JSON部分即可"},
-            {"role": "user", "content": [
-                {
-                    "type": "text",
-                    "text": f"请根据以下图片回答问题：{question}"
-                },
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": data_url
-                    }
-                }
-            ]}
-        ],
-        max_tokens=2000
-    )
-    content_str = response.choices[0].message.content
-    return content_str
+    pass
 
 
     

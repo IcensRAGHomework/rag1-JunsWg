@@ -8,6 +8,9 @@ from langchain_core.messages import HumanMessage
 from langchain.prompts import PromptTemplate
 #from langchain.chains import RunnableSequence
 import subprocess
+from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain.memory import ConversationBufferMemory
+from langchain.schema import AIMessage, HumanMessage
 
 gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)
@@ -192,9 +195,78 @@ def generate_hw02(question):
             else:
                 print("Error:", result.stderr)
     pass
-    
+
+prompt_hw03_answer_template = """
+你是一个非常聪明的助手，根據先前JSON 格式的節日清單，判断用户提供的節日是否在该清單中，並回應是否需要新增該節日,并以JSON格式返回结果。
+
+问题：{question}
+
+{{
+    "Result": [
+        {{
+            "add": 布林值,
+            "reason": "描述為什麼需要或不需要新增節日的具體說明"
+        }}
+        # 继续列出所有iso和翻译成中文的name
+    ]
+}}
+add : 這是一個布林值，表示是否需要將節日新增到節日清單中。根據問題判斷該節日是否存在於清單中，如果不存在，則為 true；否則為 false。
+reason : 描述為什麼需要或不需要新增節日，具體說明是否該節日已經存在於清單中，以及當前清單的內容。
+"""
+# 使用 ConversationBufferMemory 来管理消息历史
+#memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
+#def get_session_history():
+#    return memory.load_memory_variables({})["chat_history"]
+
+# 定义一个类，将其用于存储消息历史
+class MessageHistory:
+    def __init__(self, messages=None):
+        self.messages = messages or []
+
+    def add_message(self, message):
+        self.messages.append(message)
+
+    def add_messages(self, messages):
+        """批量添加消息"""
+        if isinstance(messages, list):
+            for message in messages:
+                if isinstance(message, (AIMessage, HumanMessage)):
+                    self.messages.append(message)
+                else:
+                    raise ValueError("All items in the list must be instances of AIMessage or HumanMessage.")
+        else:
+            raise ValueError("Input must be a list of messages.")
+
+# 创建一个 MessageHistory 实例
+history = MessageHistory()
 def generate_hw03(question2, question3):
-    pass
+    llm = getLLM()
+
+
+    # 创建对话链，结合了模型和内存
+    processed_result_1 = generate_hw02(question2)
+    #response_1 = conversation_chain.run(user_input_1)
+    json_message = AIMessage(content=processed_result_1)  # 或者使用 HumanMessage 根据需要
+    history.add_message(json_message)
+    #memory.save_context({"input": question2}, {"output": processed_result_1})
+    #print("processed_result_1:", processed_result_1)
+    #print(memory.load_memory_variables({}))
+    prompt = PromptTemplate(input_variables=["question"], template=prompt_hw03_answer_template)
+    # 将 Prompt 模板转化为 Runnable 对象
+    prompt_runnable = prompt | llm
+
+    runnable = RunnableWithMessageHistory(
+        prompt_runnable,
+        get_session_history=lambda: history
+    )
+    response = runnable.invoke({"input": question3})
+    #print("response:", response)
+    response_content = response['text'] if isinstance(response, dict) else response.content
+    #print("response_content:", response_content)
+    # print(f"返回的时间地点的 JSON 结果：{response_content}")
+    json_content = response_content.strip('```json\n').strip('```')
+    return json_content
     
 def generate_hw04(question):
     pass

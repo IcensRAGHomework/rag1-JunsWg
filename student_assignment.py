@@ -12,6 +12,11 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.memory import ConversationBufferMemory
 from langchain.schema import AIMessage, HumanMessage
 
+from PIL import Image
+import base64
+from mimetypes import guess_type
+from openai import AzureOpenAI
+
 gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)
 calendarific_api_key = "F3k6kLzjG1WjphHwkjsrsxdg0FMIs9ss"
@@ -267,9 +272,57 @@ def generate_hw03(question2, question3):
     # print(f"返回的时间地点的 JSON 结果：{response_content}")
     json_content = response_content.strip('```json\n').strip('```')
     return json_content
-    
+
+json_data = {
+    "Result": {
+        "score": "从图片中解析到的分数"
+    }
+}
+json_str = json.dumps(json_data)
+def local_image_to_data_url(image_path):
+    # Guess the MIME type of the image based on the file extension
+    mime_type, _ = guess_type(image_path)
+    if mime_type is None:
+        mime_type = 'application/octet-stream'  # Default MIME type if none is found
+
+    # Read and encode the image file
+    with open(image_path, "rb") as image_file:
+        base64_encoded_data = base64.b64encode(image_file.read()).decode('utf-8')
+
+    # Construct the data URL
+    return f"data:{mime_type};base64,{base64_encoded_data}"
+
 def generate_hw04(question):
-    pass
+    client =  AzureOpenAI(
+        api_key=gpt_config['api_key'],
+        api_version=gpt_config['api_version'],
+        base_url=f"{gpt_config['api_base']}/openai/deployments/{gpt_config['deployment_name']}")
+
+    # 加载图像
+    image_path = 'baseball.png'
+    data_url = local_image_to_data_url(image_path)
+    #print("Data URL:", data_url)
+    response = client.chat.completions.create(
+        model=gpt_config['deployment_name'],
+        messages=[
+            {"role": "system", "content": f"你是一个非常聪明的助手，可以理解和分析图片内容。以以下 JSON 格式返回：{json_str}，仅需回答JSON部分即可"},
+            {"role": "user", "content": [
+                {
+                    "type": "text",
+                    "text": f"请根据以下图片回答问题：{question}"
+                },
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": data_url
+                    }
+                }
+            ]}
+        ],
+        max_tokens=2000
+    )
+    content_str = response.choices[0].message.content
+    return content_str
 
 
     

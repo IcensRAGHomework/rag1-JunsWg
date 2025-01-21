@@ -12,8 +12,8 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.memory import ConversationBufferMemory
 from langchain.schema import AIMessage, HumanMessage
 
-from PIL import Image
-#import base64
+#from PIL import Image
+import base64
 from mimetypes import guess_type
 from openai import AzureOpenAI
 

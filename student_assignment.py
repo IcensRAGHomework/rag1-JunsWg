@@ -12,10 +12,10 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.memory import ConversationBufferMemory
 from langchain.schema import AIMessage, HumanMessage
 
-#from PIL import Image
-#import base64
+from PIL import Image
+import base64
 #from mimetypes import guess_type
-#from openai import AzureOpenAI
+from openai import AzureOpenAI
 
 gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)

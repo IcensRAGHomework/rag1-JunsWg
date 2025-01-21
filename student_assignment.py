@@ -272,9 +272,11 @@ def generate_hw03(question2, question3):
     json_content = response_content.strip('```json\n').strip('```')
     return json_content
 
+
+score = 85
 json_data = {
     "Result": {
-        "score": "从图片中解析到的分数"
+        "score": score
     }
 }
 json_str = json.dumps(json_data)
@@ -304,7 +306,7 @@ def generate_hw04(question):
     response = client.chat.completions.create(
         model=gpt_config['deployment_name'],
         messages=[
-            {"role": "system", "content": f"你是一个非常聪明的助手，可以理解和分析图片内容。以以下 JSON 格式返回：{json_str}，仅需回答JSON部分即可"},
+            {"role": "system", "content": f"你是一个非常聪明的助手，可以理解和分析图片内容。以以下 JSON 格式返回：{json_str}，仅需回答JSON部分即可，这个示例中假设分数score是85"},
             {"role": "user", "content": [
                 {
                     "type": "text",

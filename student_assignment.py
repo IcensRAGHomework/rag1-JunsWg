@@ -292,7 +292,6 @@ def local_image_to_data_url(image_path):
     return f"data:{mime_type};base64,{base64_encoded_data}"
 
 def generate_hw04(question):
-    return
     client =  AzureOpenAI(
         api_key=gpt_config['api_key'],
         api_version=gpt_config['api_version'],

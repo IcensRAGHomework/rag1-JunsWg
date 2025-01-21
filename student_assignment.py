@@ -12,10 +12,10 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain.memory import ConversationBufferMemory
 from langchain.schema import AIMessage, HumanMessage
 
-from PIL import Image
-import base64
-from mimetypes import guess_type
-from openai import AzureOpenAI
+#from PIL import Image
+#import base64
+#from mimetypes import guess_type
+#from openai import AzureOpenAI
 
 gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)
@@ -293,6 +293,7 @@ def local_image_to_data_url(image_path):
     return f"data:{mime_type};base64,{base64_encoded_data}"
 
 def generate_hw04(question):
+    return
     client =  AzureOpenAI(
         api_key=gpt_config['api_key'],
         api_version=gpt_config['api_version'],
